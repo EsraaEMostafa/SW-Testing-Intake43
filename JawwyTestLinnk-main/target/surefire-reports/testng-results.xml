@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="10" passed="10" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2023-04-27T03:57:39Z" name="JawwyEgyTest" finished-at="2023-04-27T03:57:57Z" duration-ms="17883">
+    <groups>
+    </groups>
+    <test started-at="2023-04-27T03:57:39Z" name="Command line test" finished-at="2023-04-27T03:57:57Z" duration-ms="17883">
+      <class name="JawwyEgyTest">
+        <test-method is-config="true" signature="Init()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:39Z" name="Init" finished-at="2023-04-27T03:57:43Z" duration-ms="3484" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- Init -->
+        <test-method signature="tc01_trialCostEgy()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:43Z" name="tc01_trialCostEgy" finished-at="2023-04-27T03:57:49Z" duration-ms="6270" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc01_trialCostEgy -->
+        <test-method signature="tc02_litePlanIsAvailable()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:49Z" name="tc02_litePlanIsAvailable" finished-at="2023-04-27T03:57:50Z" duration-ms="961" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc02_litePlanIsAvailable -->
+        <test-method signature="tc03_LitePlanCost()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:50Z" name="tc03_LitePlanCost" finished-at="2023-04-27T03:57:51Z" duration-ms="980" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc03_LitePlanCost -->
+        <test-method signature="tc04_LitePlanCurrency()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:51Z" name="tc04_LitePlanCurrency" finished-at="2023-04-27T03:57:52Z" duration-ms="973" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc04_LitePlanCurrency -->
+        <test-method signature="tc05_classicPlanIsAvailable()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:52Z" name="tc05_classicPlanIsAvailable" finished-at="2023-04-27T03:57:53Z" duration-ms="814" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc05_classicPlanIsAvailable -->
+        <test-method signature="tc06_classicPlanCost()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:53Z" name="tc06_classicPlanCost" finished-at="2023-04-27T03:57:54Z" duration-ms="860" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc06_classicPlanCost -->
+        <test-method signature="tc07_classicPlanCurrency()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:54Z" name="tc07_classicPlanCurrency" finished-at="2023-04-27T03:57:55Z" duration-ms="880" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc07_classicPlanCurrency -->
+        <test-method signature="tc08_premiumPlanIsAvailable()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:55Z" name="tc08_premiumPlanIsAvailable" finished-at="2023-04-27T03:57:55Z" duration-ms="768" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc08_premiumPlanIsAvailable -->
+        <test-method signature="tc09_premiumPlanCost()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:55Z" name="tc09_premiumPlanCost" finished-at="2023-04-27T03:57:56Z" duration-ms="876" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc09_premiumPlanCost -->
+        <test-method signature="tc10_classicPlanCurrency()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:56Z" name="tc10_classicPlanCurrency" finished-at="2023-04-27T03:57:57Z" duration-ms="874" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tc10_classicPlanCurrency -->
+        <test-method is-config="true" signature="teardown()[pri:0, instance:JawwyEgyTest@4e718207]" started-at="2023-04-27T03:57:57Z" name="teardown" finished-at="2023-04-27T03:57:57Z" duration-ms="143" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- teardown -->
+      </class> <!-- JawwyEgyTest -->
+    </test> <!-- Command line test -->
+  </suite> <!-- JawwyEgyTest -->
+</testng-results>
