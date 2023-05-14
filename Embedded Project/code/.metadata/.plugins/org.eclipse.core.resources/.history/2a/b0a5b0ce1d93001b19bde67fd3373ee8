@@ -1,0 +1,219 @@
+/*
+ * MC2.c
+ *
+ *  Created on: 27þ/3þ/2021
+ *      Author: Esraa Ebrahim
+ */
+
+#include "external_eeprom.h"
+#include "uart_driver.h"
+#include "timer_driver.h"
+
+#define MATCH 1
+#define UNMATCH 0
+#define NUMBER  5
+#define ENTER 13
+#define EMPTY '#'
+#define READY 'R'
+#define PLUS '+'
+#define MINUS '-'
+#define NUMBER_OF_OVERFLOWS_PER_SECOND 31
+#define DELAY 15
+#define STOP 3
+#define MIN 60
+
+/* global variable contain the ticks count of the timer */
+//uint8 g_delay=0 ,g_stop=0 ;
+uint8 g_ovfTick = 0;
+//uint8 g_ctcTick = 0;
+uint8 g_ovfSec = 0;
+//uint16 g_ctcSec = 0;
+
+void App_program (void){
+	g_ovfTick ++ ;
+	if (g_ovfTick  == NUMBER_OF_OVERFLOWS_PER_SECOND)
+	{
+		g_ovfSec ++ ;
+		g_ovfTick=0 ;
+	}
+}
+/*void App_Ctcprogram (void)
+{
+	g_ctcTick ++ ;
+	if (g_ctcTick  == NUMBER_OF_OVERFLOWS_PER_SECOND)
+		{
+		    g_ctcTick =0 ;
+		    g_ctcSec ++ ;
+		}
+}
+*/
+int main(){
+	Timer_ConfigType Timer_Config = {NORMAL,0,CLOCK_1024};
+	//Timer_ConfigType Ctc_Timer_Config = {COMPARE,0,CLOCK_1024,255};
+	Ovf_setCallBack(App_program);
+	timer_init(&Timer_Config); //start the timer.
+	Uart_ConfigType Uart_Config = {BIT_8,DISABLED,BIT_1,BAUD_9600};
+	UART_init(&Uart_Config);
+	EEPROM_init();
+	SREG  |= (1<<7);    //Enable global interrupts in MC by setting the I-Bit.
+	/* configure pin PB0 , PB1 and PB2 as output pins */
+	DDRB |= 0x07;
+
+	/* Motor is stop at the beginning */
+	PORTB &= 0xFC;
+	PORTB |= (1<<PB2);
+	DDRD |=(1<<PD3);
+	PORTD &= ~(1<<PD3);
+	uint8 i ,block =0,val , count = 0 ,change =5 , open = 5, option,match =10;
+	uint8 password [NUMBER];
+	uint8 re_password [NUMBER];
+	uint16 address ;
+	EEPROM_writeByte(0x0311 ,EMPTY);
+	_delay_ms (10);
+	if (EEPROM_readByte(0x0311 , &val))
+	{
+		 if (val == EMPTY)
+		 {
+			 UART_sendByte(READY);
+		 }
+	}
+
+    while (1)
+    {
+        if ((change == MATCH)||(match == UNMATCH) ||(val == EMPTY))
+        {
+        	count = 0 ;
+        	for (i=0;i<NUMBER;i++)
+        	{
+        		password[i]= UART_recieveByte();
+        	}
+        	for (i=0;i<NUMBER;i++)
+        	{
+        		address = (0x0311)+16*i;
+        		EEPROM_writeByte(address , password[i]);
+        		_delay_ms(10);
+        	}
+        	for (i=0;i<NUMBER;i++)
+        	{
+        		re_password[i]= UART_recieveByte();
+        	}
+        	for (i=0;i<NUMBER;i++)
+        	{
+        		address = (0x0311)+16*i;
+        		EEPROM_readByte(address , &val);
+        		_delay_ms(10);
+        		if (val == re_password[i])
+        		{
+        			count ++ ;
+        		}
+        	}
+        	if (count == 5)
+        	{
+        		UART_sendByte(MATCH);
+        		match = MATCH ;
+        	}
+        	else if (count != 5)
+        	{
+        		UART_sendByte(UNMATCH);
+        		match = UNMATCH ;
+        	}
+        }
+        //step 2
+        if ((match == MATCH))
+        {
+        	count = 0 ;
+        	option = UART_recieveByte();
+        	for (i=0;i<NUMBER;i++)
+			{
+				re_password[i]= UART_recieveByte();
+			}
+			for (i=0;i<NUMBER;i++)
+			{
+				address = (0x0311)+16*i;
+				EEPROM_readByte(address , &val);
+				_delay_ms(10);
+				if (val == re_password[i])
+				{
+				   count ++ ;
+				}
+			}
+        }
+
+		if (option ==PLUS)
+		{
+
+			if (count != NUMBER)
+			{
+				UART_sendByte(UNMATCH);
+				change = UNMATCH ;
+				match = MATCH ;
+				continue ;
+			}
+			else if (count == NUMBER)
+			{
+				UART_sendByte(MATCH);
+				change = MATCH ;
+			}
+
+			count =0 ;
+		}
+		else if ((open == UNMATCH)||(option == MINUS))
+		{
+
+			 if (count == NUMBER)
+			{
+				UART_sendByte(MATCH);
+				open = MATCH ;
+				match = MATCH ;
+				// Rotate the motor --> clock wise
+				g_ovfSec = 0;
+				while(g_ovfSec < DELAY)
+				{
+					PORTB &= (~(1<<PB1));
+					PORTB |= (1<<PB0);
+				}
+				g_ovfSec=0;
+				// Stop the motor
+				while(g_ovfSec < STOP)
+				{
+					PORTB &= (~(1<<PB0));
+					PORTB &= (~(1<<PB1));
+				}
+				g_ovfSec =0 ;
+				// Rotate the motor --> anti-clock wise
+				while(g_ovfSec < DELAY)
+				{
+					PORTB &= (~(1<<PB0));
+					PORTB |= (1<<PB1);
+				}
+				g_ovfSec = 0 ;
+				PORTB &= (~(1<<PB0));
+				PORTB &= (~(1<<PB1));
+				count =0 ;
+				continue ;
+			}
+
+			else if (count != NUMBER)
+			{
+				UART_sendByte(UNMATCH);
+				open = UNMATCH ;
+				PORTD |= (1<<PD3 );
+				_delay_ms (600);
+				block ++ ;
+				//while (block == 3)
+			   /*{
+
+				   g_ovfSec = 0;
+				   while(g_ovfSec < MIN)
+				   {
+					   PORTD |= (1<<PD3) ;
+				   }
+				   match = MATCH ;
+				   PORTD &= ~(1<<PD3 );
+				   block =0 ;
+				   continue ;
+			   }*/
+			}
+	   }
+    }
+}

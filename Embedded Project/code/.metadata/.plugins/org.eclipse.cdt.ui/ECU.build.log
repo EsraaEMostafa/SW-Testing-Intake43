@@ -1,0 +1,38 @@
+??:??:?? **** Incremental Build of configuration Debug for project ECU ****
+make all 
+Building file: ../ECU.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"ECU.d" -MT"ECU.o" -c -o "ECU.o" "../ECU.c"
+In file included from ../micro_config.h:22,
+                 from ../uart_driver.h:13,
+                 from ../ECU.c:9:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../ECU.c
+ 
+Building target: ECU.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,ECU.map -mmcu=atmega16 -o "ECU.elf"  ./ECU.o ./external_eeprom.o ./i2c.o ./timer_driver.o ./uart_driver.o   
+Finished building target: ECU.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S ECU.elf  >"ECU.lss"
+Finished building: ECU.lss
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 ECU.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:    7122 bytes (43.5% Full)
+(.text + .data + .bootloader)
+
+Data:         26 bytes (2.5% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+??:??:?? Build Finished. 0 errors, 1 warnings. (took 2s.779ms)
+

@@ -1,0 +1,38 @@
+??:??:?? **** Incremental Build of configuration Debug for project Control ****
+make all 
+Building file: ../control.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"control.d" -MT"control.o" -c -o "control.o" "../control.c"
+In file included from ../micro_config.h:22,
+                 from ../uart_driver.h:13,
+                 from ../control.c:9:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../control.c
+ 
+Building target: Control.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,Control.map -mmcu=atmega16 -o "Control.elf"  ./control.o ./external_eeprom.o ./i2c.o ./timer_driver.o ./uart_driver.o   
+Finished building target: Control.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S Control.elf  >"Control.lss"
+Finished building: Control.lss
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 Control.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:    8044 bytes (49.1% Full)
+(.text + .data + .bootloader)
+
+Data:         28 bytes (2.7% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+??:??:?? Build Finished. 0 errors, 1 warnings. (took 2s.40ms)
+

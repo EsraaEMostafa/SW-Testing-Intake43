@@ -1,0 +1,218 @@
+/*
+ * MC1.c
+ *
+ *  Created on:27/3þ/2021
+ *      Author: Esraa Ebrahim
+ */
+
+#include "lcd.h"
+#include "keypad.h"
+#include "uart_driver.h"
+#include "timer_driver.h"
+
+#define MATCH 1
+#define UNMATCH 0
+#define NUMBER  5
+#define ENTER 13
+#define EMPTY '#'
+#define READY 'R'
+#define PLUS '+'
+#define MINUS '-'
+#define DELAY 15
+#define STOP 3
+#define MIN 60
+#define NUMBER_OF_OVERFLOWS_PER_SECOND 32
+
+/* global variable contain the ticks count of the timer */
+//uint8 g_delay=0 ,g_stop=0 ;
+uint8 g_ovfTick = 0;
+//uint8 g_ctcTick = 0;
+uint8  g_ovfSec = 0;
+//uint16 g_ctcSec = 0;
+void sendReceive (void)
+{
+	uint8 i , enter;
+	uint8 pass [i] ;
+	for (i=0;i<NUMBER;i++)
+	{
+		pass [i]=KeyPad_getPressedKey();
+		LCD_displayStringRowColumn(1,i,"*");
+		_delay_ms (100);
+	}
+	enter = KeyPad_getPressedKey();
+	while (enter != ENTER)
+		enter = KeyPad_getPressedKey();
+	if (enter == ENTER)
+	{
+		for (i=0;i<NUMBER;i++)
+		{
+			UART_sendByte(pass [i]);
+		}
+	}
+}
+void App_program (void){
+	g_ovfTick ++ ;
+	if (g_ovfTick  == NUMBER_OF_OVERFLOWS_PER_SECOND)
+	{
+		g_ovfSec ++ ;
+		g_ovfTick = 0 ;
+	}
+}
+/*void App_Ctcprogram (void)
+{
+	g_ctcTick ++ ;
+	if (g_ctcTick  == NUMBER_OF_OVERFLOWS_PER_SECOND)
+		{
+		    g_ctcTick =0 ;
+		    g_ctcSec ++ ;
+		}
+}
+*/
+uint8 unmatch , match=10 ;
+void tryAgain (void)
+{
+	static uint8 block = 1 ;
+	unmatch = UNMATCH ;
+	while (( block < 3)&& (unmatch == UNMATCH))
+	{
+		block ++ ;
+		LCD_displayString("please try again !");
+		sendReceive ();
+		unmatch = UART_recieveByte();
+		LCD_displayStringRowColumn(1,4,"");
+	    LCD_intgerToString(block);
+	    match =MATCH ;
+	}
+	if (block == 3)
+	{
+		LCD_displayString("system locked !");
+		g_ovfSec = 0;
+	    while(g_ovfSec < MIN) ;
+	}
+}
+
+int main ()
+{
+	Timer_ConfigType Timer_Config = {NORMAL,0,CLOCK_1024};
+	//Timer_ConfigType Ctc_Timer_Config = {COMPARE,0,CLOCK_1024,255};
+	Ovf_setCallBack(App_program);
+	timer_init(&Timer_Config); //start the timer.
+
+	Uart_ConfigType Uart_Config = {BIT_8,DISABLED,BIT_1,BAUD_9600};
+	UART_init(&Uart_Config);
+	LCD_init();
+	SREG  |= (1<<7);    //Enable global interrupts in MC by setting the I-Bit.
+
+	uint8 match = 10, option , change =10 , open = 10  ;
+
+	LCD_displayStringRowColumn(0,4,"Door locker");
+	LCD_displayStringRowColumn(1,4,"welcome");
+	_delay_ms (200);
+
+    while (1)
+    {
+    	if ((match == MATCH))
+		{
+		   LCD_clearScreen();
+		   LCD_displayString("+ : Change password");
+		   LCD_displayStringRowColumn(1,0,"- : Open Door");
+		   option = KeyPad_getPressedKey() ;
+		   UART_sendByte(option);
+
+	       if (option == PLUS )
+	       {
+		     LCD_clearScreen();
+		     LCD_displayString("Please enter old password");
+		     sendReceive ();
+		     change = UART_recieveByte();
+		     LCD_clearScreen();
+		     if (change == UNMATCH)
+	         {
+			     LCD_displayString("unMatched");
+			     _delay_ms (200);
+			     LCD_intgerToString(change);
+			     match = MATCH ;
+			     //enter = KeyPad_getPressedKey();
+			     continue ;
+		     }
+		   else if (change == MATCH)
+		  {
+			  LCD_displayString("Matched");
+			  _delay_ms (200);
+			  LCD_intgerToString(change);
+			  match = MATCH ;
+		  }
+		}
+	    if ((option == MINUS))
+	    {
+		   LCD_clearScreen();
+		   LCD_displayString("Please enter the password");
+		   sendReceive ();
+		   open = UART_recieveByte();
+		   LCD_clearScreen();
+		   if (open == MATCH)
+		   {
+			   LCD_displayString("Door is unlocking....");
+			   g_ovfSec = 0;
+			   while(g_ovfSec < DELAY+STOP)
+			   {
+				   LCD_clearScreen();
+				   LCD_intgerToString(g_ovfSec);
+				   LCD_displayStringRowColumn(1,0,"");
+				   LCD_intgerToString(g_ovfTick);
+			   }
+			   g_ovfSec = 0;
+			   LCD_clearScreen();
+			   LCD_displayString("Door is locking....");
+
+			   while(g_ovfSec < DELAY)
+			   {
+
+				   LCD_clearScreen();
+				   LCD_intgerToString(g_ovfSec);
+				   LCD_displayStringRowColumn(1,0,"");
+				   LCD_intgerToString(g_ovfTick);
+
+			   }
+			   g_ovfSec = 0;
+			   match = MATCH ;
+			   LCD_displayString("enough ....");
+			   continue ;
+		   }
+		   else if (open == UNMATCH)
+		   {
+			   LCD_displayString("UnMatched");
+			   _delay_ms (100);
+			   //enter = KeyPad_getPressedKey();
+			   tryAgain ();
+		   }
+
+	   }
+	}
+    	// step 1
+    	if ((change == MATCH)||(match == UNMATCH) || (UART_recieveByte() == READY))
+    	{
+    		LCD_clearScreen();
+    		LCD_displayString("Please Enter New Pass");
+    		sendReceive ();
+    		LCD_clearScreen();
+    		LCD_displayString("Please Re-Enter same Pass");
+    		sendReceive ();
+    		match = UART_recieveByte();
+    		LCD_clearScreen();
+
+    		if (match == UNMATCH)
+    	    {
+    		     LCD_displayString("UnMatched");
+    		     _delay_ms (200);
+    		}
+    		else if (match == MATCH)
+			{
+				 LCD_displayString("Matched");
+				 _delay_ms (200);
+			}
+    	}
+    	//step 2
+
+}
+}
